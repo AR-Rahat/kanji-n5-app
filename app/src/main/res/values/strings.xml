@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">KANJI-N5</string>
+    <string name="button_description">Pronunciation</string>
+    <string name="textStroke">Stroke Order</string>
+    <string name="Play_video">Play</string>
+    <string name="Pause_video">Pause</string>
+</resources>

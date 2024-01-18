@@ -1,0 +1,75 @@
+package com.example.kanji_n5;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import java.util.ArrayList;
+import java.util.List;
+
+public class Weekwisekanji extends AppCompatActivity {
+
+    private RecyclerView recyclerView;
+    private KanjiAdapter weekAdapter;
+    private List<Kanji> weekList;
+    private String weekname;
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_homepage);
+
+        weekname = getIntent().getStringExtra("name");
+
+        recyclerView = findViewById(R.id.recyclerView);
+        weekList = new ArrayList<>();
+        weekAdapter = new KanjiAdapter(weekList, new KanjiAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(Kanji selectedWord) {
+                Intent intent = new Intent(Weekwisekanji.this, Kanjidetails.class);
+                intent.putExtra("audio",selectedWord.getAudio());
+                intent.putExtra("kanji",selectedWord.getKanji());
+                intent.putExtra("meaning",selectedWord.getMeaning());
+                intent.putExtra("pdf",selectedWord.getPdf());
+                intent.putExtra("usage",selectedWord.getUsage());
+                intent.putExtra("video",selectedWord.getVideo());
+                intent.putExtra("word",selectedWord.getWord());
+                startActivity(intent);
+            }
+        });
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(weekAdapter);
+
+        fetchkanjiFromFirestore();
+    }
+    private CollectionReference masterCollection;
+    private void fetchkanjiFromFirestore() {
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("fields").document(weekname).collection("kanji")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                Kanji week = document.toObject(Kanji.class);
+                                weekList.add(week);
+                            }
+                            weekAdapter.notifyDataSetChanged();
+                        } else {
+                            Log.e("Firestore", "Error getting documents.", task.getException());
+                        }
+                    }
+                });
+    }
+}
