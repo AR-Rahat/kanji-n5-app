@@ -38,7 +38,7 @@ public class WeekAdapter extends RecyclerView.Adapter<WeekAdapter.WordViewHolder
         holder.textWord.setText(word.getName());
         holder.cardView.setCardElevation(0.5f);
 
-        String [] color = {"#C5FFF8","#9BE8D8"};
+        String [] color = {"#C5FFF8","#C7FFC7"};
         int a = holder.getAdapterPosition();
         Log.d("item",String.valueOf(a));
         String cc = color[a%2];
